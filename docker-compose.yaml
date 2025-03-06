@@ -1,0 +1,10 @@
+name: metaboscape-app
+
+services:
+  app:
+    image: app
+    ports:
+      - "20688:20688"
+    volumes:
+      - ${PWD}/R:/home/R
+    restart: unless-stopped
