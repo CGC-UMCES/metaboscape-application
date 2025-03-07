@@ -3,17 +3,29 @@
 This is still very much a work in progress. A few notes for developers, in the 
 meantime:
 
-## Build container
+## Development
+ - Edit application at `R/app.R`
+ - Serve application (see below)
+ - Repeat.
+
+## Misc. container navigation
+### Build container
 ```
 docker build -t app .
 ```
 
-## Open directly into R
+### Open container
+```
+docker run -it -v ./R:/home/Rl
+ -p 20688:20688 app R
+```
+
+### Open directly into R
 ```
 docker run -it -v ./R:/home/R -p 20688:20688 app R
 ```
 
-## Serve application
+### Serve application
 ```
 docker run --rm -v ./R:/home/R -p 20688:20688 app
 ```
