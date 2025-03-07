@@ -16,8 +16,7 @@ docker build -t app .
 
 ### Open container
 ```
-docker run -it -v ./R:/home/Rl
- -p 20688:20688 app R
+docker run -it -v ./R:/home/R -p 20688:20688 app bash
 ```
 
 ### Open directly into R
@@ -27,6 +26,6 @@ docker run -it -v ./R:/home/R -p 20688:20688 app R
 
 ### Serve application
 ```
-docker run --rm -v ./R:/home/R -p 20688:20688 app
+docker run --rm -d -v ./R:/home/R -p 20688:20688 app
 ```
 Navigate to: http://127.0.0.1:20688/
