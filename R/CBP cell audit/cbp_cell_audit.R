@@ -14,7 +14,7 @@ model_points <- tidync("R/big data/whiteperch_95_96.nc") |>
   distinct(Cell_ID, .keep_all = TRUE) |>
   sf::st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326)
 
-model_cells <- st_read("R/Chesapeake_Bay_Water_Quality_Modeling_cells.geojson")
+model_cells <- st_read("R/CBP cell audit/Chesapeake_Bay_Water_Quality_Modeling_cells.geojson")
 
 # Shift latitude down by 0.00225 to match model points
 st_geometry(model_cells) <- st_geometry(model_cells) - c(0, 0.00225)
@@ -33,6 +33,7 @@ mapview(
   mapview(model_points, cex = 2)
 
 # CELLID is the cell ID from the CBP model polygons
+#   Note that CELLID has leading zeroes
 # Cell_ID is the cell ID from the model points
 key <- cells_points_joined |>
   data.frame() |>
