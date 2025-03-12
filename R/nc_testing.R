@@ -1,3 +1,5 @@
+#  General notes: nwcbox == ID of cell at each layer
+
 library(tidync)
 library(sf)
 library(dplyr)
@@ -17,16 +19,16 @@ coords <- wp |>
     "D1,D0"
   ) |>
   hyper_tibble() |>
-  distinct(Cell_ID, .keep_all = TRUE) |>
   sf::st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326)
 
 model <- wp |>
   hyper_filter(
-    Layer_N = Layer_N > 25 & Layer_N < 26,
-    Time = Time == "1995-01-01-00"
+    Time = Time == "1995-01-01-00",
+    Layer_N = index == 10
   ) |>
   hyper_tibble() |>
-  bind_cols(coord_key)
+  filter(nwcbox != -9999) #|>
+# bind_cols(coord_key)
 
 domain <- "R/CBP cell audit/Chesapeake_Bay_Water_Quality_Modeling_cells.geojson" |>
   sf::st_read() |>
@@ -51,3 +53,8 @@ maplibre(style = carto_style("positron")) |>
     fill_outline_color = "rgba(0, 0, 0, 0)",
     tooltip = "DEPTH"
   )
+
+k <- model_cells |>
+  mutate(cell = as.character(cell)) |>
+  data.frame() |>
+  full_join(data.frame(coords), by = c("cell" = "Cell_ID"))

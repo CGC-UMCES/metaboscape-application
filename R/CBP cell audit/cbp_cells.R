@@ -4,10 +4,13 @@ library(tidyr)
 
 model_cells <- st_read("R/CBP cell audit/Chesapeake_Bay_Water_Quality_Modeling_cells.geojson") |>
   pivot_longer(starts_with("LAYER"), names_to = "layer", values_to = "cell") |>
-  select(DEPTH, layer, cell) |>
-  filter(cell != 0) |>
-  mutate(layer = as.numeric(gsub("LAYER_", "", layer)))
+  mutate(layer_index = as.numeric(gsub("LAYER_", "", layer))) |>
+  select(layer_index, cell) |>
+  filter(cell != 0)
 
-k <- model_cells |>
+st_write(model_cells, "R/working data/model_cells.geojson")
+
+# Find the maximum layer for each cell
+max_layer <- model_cells |>
   group_by(geometry) |>
-  filter(layer == min(layer))
+  filter(layer_index == min(layer_index))
