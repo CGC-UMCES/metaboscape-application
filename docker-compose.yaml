@@ -3,8 +3,11 @@ name: metaboscape-app
 services:
   app:
     image: app
+    # read_only: true
     ports:
       - "20688:20688"
     volumes:
       - ${PWD}/R:/home/R
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped

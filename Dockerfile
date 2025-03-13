@@ -7,6 +7,9 @@ LABEL \
     org.opencontainers.image.vendor="University of Maryland Center for Environmental Science" \
     org.opencontainers.image.version="0.0.999"
 
+# Add a dummy user to avoid running as root
+RUN groupadd -r myuser && useradd -r -g myuser myuser
+
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     r-cran-shiny \
@@ -17,5 +20,8 @@ RUN apt-get update && \
 RUN mkdir /home/R
 
 EXPOSE 20688
+
+# switch to the dummy user
+USER myuser
 
 CMD [ "Rscript", "/home/R/app.R"]
