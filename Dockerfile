@@ -8,14 +8,15 @@ LABEL \
     org.opencontainers.image.version="0.0.999"
 
 # Add a dummy user to avoid running as root
-RUN groupadd -r myuser && useradd -r -g myuser myuser
+RUN groupadd -r myuser && useradd -r -m -g myuser myuser
 
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     r-cran-shiny \
     r-cran-bslib \
     r-cran-mapgl \
-    r-cran-tidync 
+    r-cran-tidync \
+    r-cran-dplyr
 
 RUN mkdir /home/R
 
