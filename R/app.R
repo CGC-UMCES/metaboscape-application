@@ -40,13 +40,16 @@ slice_ncdf <- function(depth_ft, date) {
         tidync::hyper_tibble() |>
         # Remove cells with no data
         dplyr::filter(nwcbox != -9999),
-      # Cells are labeles "cell" in model domain and "nwcbox" in model output
+      # Cells are labeled "cell" in model domain and "nwcbox" in model output
       by = dplyr::join_by(cell == nwcbox)
+    ) |> 
+    dplyr::mutate(
+      dplyr::across(IGR:S, ~ signif(.x, 3))
     )
 }
 
 ### The app ###
-ui <- bslib::page_sidebar(
+ui <- bslib::page_navbar(
   title = "The Chesapeake Metaboscape",
   sidebar = bslib::sidebar(
     bslib::card(
@@ -77,9 +80,19 @@ ui <- bslib::page_sidebar(
       )
     )
   ),
-  bslib::card(
+  bslib::nav_panel(
+    "Map",
+    bslib::card(
     full_screen = TRUE,
     mapgl::maplibreOutput("map")
+  )
+  ),
+  bslib::nav_panel(
+    "Histogram",
+    bslib::card(
+      full_screen = TRUE,
+      plotOutput("hist")
+    )
   )
 )
 
@@ -108,7 +121,25 @@ server <- function(input, output, session) {
         fill_opacity = 0.5,
         fill_outline_color = "rgba(0, 0, 0, 0)",
         tooltip = input$select
+      ) |> 
+      mapgl::add_legend(
+        legend_title = input$select,
+        type = "continuous",
+        colors = c("blue", "red"),
+        values = signif(
+          range(
+          selected_data()[[input$select]],
+          na.rm = TRUE
+        ),
+        3
+        )
       )
+  })
+
+  output$hist <- shiny::renderPlot({
+    hist(selected_data()[[input$select]],
+    xlab = input$select,
+    main = NULL)
   })
 }
 
