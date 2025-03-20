@@ -9,38 +9,48 @@ options(shiny.host = "0.0.0.0")
 options(shiny.port = 20688)
 
 # Metaboscape model output
-wp <- tidync("R/big data/whiteperch_95_96.nc")
+wp <- tidync::tidync(
+  "/home/R/big data/whiteperch_95_96.nc"
+)
 
 # Cell ID key of the CBP model domain. See R/CBP cell audit/cbp_cells.R
 domain <- sf::st_read(
-  "/home/R/working data/model_cells.geojson"
+  "/home/R/working data/model_cells.geojson",
+  quiet = TRUE
 )
 
+#' Slice NetCDF file according to depth and date inputs and extract pertinent
+#' cells of the model domain
+#'
 #' @param depth_ft The depth in feet: 5-95, a multiple of 5
 #' @param date The date in the format "YYYY-MM-DD"
-cut_ncdf <- function(depth_ft, date) {
+slice_ncdf <- function(depth_ft, date) {
   layer <- depth_ft / 5
   date <- paste0(date, "-00")
 
   domain |>
-    inner_join(
+    # Select only those cells with data in both model domain and model output
+    dplyr::inner_join(
+      # Slice NCDF file
       wp |>
         tidync::hyper_filter(
           Time = Time == date,
           Layer_N = index == layer
         ) |>
         tidync::hyper_tibble() |>
+        # Remove cells with no data
         dplyr::filter(nwcbox != -9999),
-      by = join_by(cell == nwcbox)
+      # Cells are labeles "cell" in model domain and "nwcbox" in model output
+      by = dplyr::join_by(cell == nwcbox)
     )
 }
 
 ### The app ###
-ui <- page_sidebar(
+ui <- bslib::page_sidebar(
   title = "The Chesapeake Metaboscape",
-  sidebar = sidebar(
-    card(
-      selectInput(
+  sidebar = bslib::sidebar(
+    bslib::card(
+      shiny::selectInput(
         "select",
         "Select data",
         choices = list(
@@ -50,7 +60,7 @@ ui <- page_sidebar(
         ),
         selected = "IGR"
       ),
-      sliderInput(
+      shiny::sliderInput(
         "layer",
         "Select depth (ft)",
         min = 5,
@@ -58,7 +68,7 @@ ui <- page_sidebar(
         step = 5,
         value = 5
       ),
-      dateInput(
+      shiny::dateInput(
         "date",
         "Select date",
         min = "1995-01-01",
@@ -67,28 +77,31 @@ ui <- page_sidebar(
       )
     )
   ),
-  card(
+  bslib::card(
     full_screen = TRUE,
-    maplibreOutput("map")
+    mapgl::maplibreOutput("map")
   )
 )
 
 server <- function(input, output, session) {
-  selected_data <- reactive({
-    cut_ncdf(input$layer, input$date)
+  selected_data <- shiny::reactive({
+    slice_ncdf(input$layer, input$date)
   })
 
-  output$map <- renderMaplibre({
-    maplibre(style = carto_style("positron")) |>
-      fit_bounds(
+  output$map <- mapgl::renderMaplibre({
+    mapgl::maplibre(style = mapgl::carto_style("positron")) |>
+      mapgl::fit_bounds(
         c(-77.46285, 36.71919, -75.38543, 39.63196)
       ) |>
-      add_fill_layer(
+      mapgl::add_fill_layer(
         id = "domain",
         source = selected_data(),
-        fill_color = interpolate(
+        fill_color = mapgl::interpolate(
           column = input$select,
-          values = range(selected_data()[[input$select]], na.rm = TRUE),
+          values = range(
+            selected_data()[[input$select]],
+            na.rm = TRUE
+          ),
           stops = c("blue", "red"),
           na_color = "lightgrey"
         ),
@@ -99,4 +112,4 @@ server <- function(input, output, session) {
   })
 }
 
-shinyApp(ui, server)
+shiny::shinyApp(ui, server)
