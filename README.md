@@ -13,6 +13,9 @@ in the meantime:
  - Serve application (see below)
  - Repeat.
 
+Note that the image is currently 1.1GB and takes ~90s to build. Future efforts
+will be focused on reducing this size.
+
 If developing on the Chesapeake Biological Laboratory server you will need to
 change the port in the
 [docker compose file](https://github.com/CGC-UMCES/metaboscape-application/blob/main/docker-compose.yaml#L8)
