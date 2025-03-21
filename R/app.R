@@ -42,7 +42,7 @@ slice_ncdf <- function(depth_ft, date) {
         dplyr::filter(nwcbox != -9999),
       # Cells are labeled "cell" in model domain and "nwcbox" in model output
       by = dplyr::join_by(cell == nwcbox)
-    ) |> 
+    ) |>
     dplyr::mutate(
       dplyr::across(IGR:S, ~ signif(.x, 3))
     )
@@ -55,13 +55,12 @@ ui <- bslib::page_navbar(
     bslib::card(
       shiny::selectInput(
         "select",
-        "Select data",
+        "Select variable",
         choices = list(
           "IGR" = "IGR", "MF" = "MF", "RM" = "RM",
           "Temperature (C)" = "T", "Salinity (ppt)" = "S",
           "Dissolved Oxygen (mg/L)" = "DO"
-        ),
-        selected = "IGR"
+        )
       ),
       shiny::sliderInput(
         "layer",
@@ -83,9 +82,9 @@ ui <- bslib::page_navbar(
   bslib::nav_panel(
     "Map",
     bslib::card(
-    full_screen = TRUE,
-    mapgl::maplibreOutput("map")
-  )
+      full_screen = TRUE,
+      mapgl::maplibreOutput("map")
+    )
   ),
   bslib::nav_panel(
     "Histogram",
@@ -100,46 +99,146 @@ server <- function(input, output, session) {
   selected_data <- shiny::reactive({
     slice_ncdf(input$layer, input$date)
   })
+  init_data <- slice_ncdf(5, "1995-01-01")
 
   output$map <- mapgl::renderMaplibre({
-    mapgl::maplibre(style = mapgl::carto_style("positron")) |>
-      mapgl::fit_bounds(
-        c(-77.46285, 36.71919, -75.38543, 39.63196)
-      ) |>
+    mapgl::maplibre(
+      style = mapgl::carto_style("positron"),
+      bounds = c(-77.46285, 36.71919, -75.38543, 39.63196)
+    ) |>
       mapgl::add_fill_layer(
         id = "domain",
-        source = selected_data(),
+        source = init_data,
         fill_color = mapgl::interpolate(
-          column = input$select,
+          column = "IGR",
           values = range(
-            selected_data()[[input$select]],
+            init_data$IGR,
             na.rm = TRUE
           ),
           stops = c("blue", "red"),
           na_color = "lightgrey"
         ),
-        fill_opacity = 0.5,
-        fill_outline_color = "rgba(0, 0, 0, 0)",
-        tooltip = input$select
-      ) |> 
+        fill_opacity = 0.8
+      ) |>
       mapgl::add_legend(
-        legend_title = input$select,
+        legend_title = "IGR",
         type = "continuous",
         colors = c("blue", "red"),
-        values = signif(
-          range(
-          selected_data()[[input$select]],
+        values = range(
+          init_data$IGR,
           na.rm = TRUE
-        ),
-        3
         )
       )
   })
 
+  shiny::observeEvent(
+    input$select,
+    {
+      mapgl::maplibre_proxy("map") |>
+        mapgl::set_view(
+          center = input$map_center,
+          zoom = input$map_zoom
+        ) |>
+        mapgl::set_paint_property(
+          layer = "domain",
+          name = "fill-color",
+          value = mapgl::interpolate(
+            column = input$select,
+            values = range(
+              selected_data()[[input$select]],
+              na.rm = TRUE
+            ),
+            stops = c("blue", "red"),
+            na_color = "lightgrey"
+          )
+        ) |>
+        mapgl::add_legend(
+          legend_title = input$select,
+          type = "continuous",
+          colors = c("blue", "red"),
+          values = range(
+            selected_data()[[input$select]],
+            na.rm = TRUE
+          )
+        )
+    }
+  )
+
+  shiny::observeEvent(
+    input$date,
+    {
+      mapgl::maplibre_proxy("map") |>
+        mapgl::set_view(
+          center = input$map_center,
+          zoom = input$map_zoom
+        ) |>
+        mapgl::set_paint_property(
+          layer = "domain",
+          name = "fill-color",
+          value = mapgl::interpolate(
+            column = input$select,
+            values = range(
+              selected_data()[[input$select]],
+              na.rm = TRUE
+            ),
+            stops = c("blue", "red"),
+            na_color = "lightgrey"
+          )
+        ) |>
+        mapgl::add_legend(
+          legend_title = input$select,
+          type = "continuous",
+          colors = c("blue", "red"),
+          values = range(
+            selected_data()[[input$select]],
+            na.rm = TRUE
+          )
+        )
+    }
+  )
+
+  # Need to clear the map layer if changing model depth as the plotting
+  # domain is now different.
+  shiny::observeEvent(
+    input$layer,
+    {
+      mapgl::maplibre_proxy("map") |>
+        mapgl::set_view(
+          center = input$map_center,
+          zoom = input$map_zoom
+        ) |>
+        mapgl::clear_layer("domain") |>
+        mapgl::add_fill_layer(
+          id = "domain",
+          source = selected_data(),
+          fill_color = mapgl::interpolate(
+            column = input$select,
+            values = range(
+              selected_data()[[input$select]],
+              na.rm = TRUE
+            ),
+            stops = c("blue", "red"),
+            na_color = "lightgrey"
+          ),
+          fill_opacity = 0.8
+        ) |>
+        mapgl::add_legend(
+          legend_title = input$select,
+          type = "continuous",
+          colors = c("blue", "red"),
+          values = range(
+            selected_data()[[input$select]],
+            na.rm = TRUE
+          )
+        )
+    }
+  )
+
   output$hist <- shiny::renderPlot({
     hist(selected_data()[[input$select]],
-    xlab = input$select,
-    main = NULL)
+      xlab = input$select,
+      main = NULL
+    )
   })
 }
 
