@@ -1,9 +1,8 @@
-name: metaboscape
+name: metabo
 
 services:
   app:
     image: app
-    # read_only: true
     ports:
       - "20688:20688"
     volumes:

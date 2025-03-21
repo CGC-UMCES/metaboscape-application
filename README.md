@@ -43,7 +43,13 @@ docker run -it -v ./R:/home/R app R
 
 ### Serve application
 ```
-docker run --rm -d -v ./R:/home/R -p 20688:20688 app
+docker run --rm --name metabo_app -d -v ./R:/home/R -p 20688:20688 app
+```
+
+or, run:
+
+```
+docker compose up -d
 ```
 
 Navigate to: http://localhost:20688/
