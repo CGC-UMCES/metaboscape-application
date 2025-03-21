@@ -118,7 +118,8 @@ server <- function(input, output, session) {
           stops = c("blue", "red"),
           na_color = "lightgrey"
         ),
-        fill_opacity = 0.8
+        fill_opacity = 0.8,
+        tooltip = "IGR"
       ) |>
       mapgl::add_legend(
         legend_title = "IGR",
@@ -152,6 +153,10 @@ server <- function(input, output, session) {
             na_color = "lightgrey"
           )
         ) |>
+        mapgl::set_tooltip(
+          layer = "domain",
+          tooltip = input$select
+        ) |>
         mapgl::add_legend(
           legend_title = input$select,
           type = "continuous",
@@ -184,6 +189,10 @@ server <- function(input, output, session) {
             stops = c("blue", "red"),
             na_color = "lightgrey"
           )
+        ) |>
+        mapgl::set_tooltip(
+          layer = "domain",
+          tooltip = input$select
         ) |>
         mapgl::add_legend(
           legend_title = input$select,
@@ -220,7 +229,8 @@ server <- function(input, output, session) {
             stops = c("blue", "red"),
             na_color = "lightgrey"
           ),
-          fill_opacity = 0.8
+          fill_opacity = 0.8,
+          tooltip = input$select
         ) |>
         mapgl::add_legend(
           legend_title = input$select,
