@@ -57,7 +57,7 @@ ui <- bslib::page_navbar(
         "select",
         "Select variable",
         choices = list(
-          "IGR" = "IGR", "MF" = "MF", "RM" = "RM",
+          "Inst. Growth Rate" = "IGR", "MF" = "MF", "RM" = "RM",
           "Temperature (C)" = "T", "Salinity (ppt)" = "S",
           "Dissolved Oxygen (mg/L)" = "DO"
         )
