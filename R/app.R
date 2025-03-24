@@ -1,9 +1,10 @@
+# This library utilizes the shiny, bslib, mapgl, tidync, and dplyr R packages
 # Shiny reference: https://mastering-shiny.org/index.html
-library(shiny)
-library(bslib)
-library(mapgl)
-library(tidync)
-library(dplyr)
+
+# Suppress messages from unused terra dependency to install the codetools package.
+suppressMessages(
+  library(mapgl)
+)
 
 options(shiny.host = "0.0.0.0")
 options(shiny.port = 20688)
@@ -90,7 +91,7 @@ ui <- bslib::page_navbar(
     "Histogram",
     bslib::card(
       full_screen = TRUE,
-      plotOutput("hist")
+      shiny::plotOutput("hist")
     )
   )
 )
