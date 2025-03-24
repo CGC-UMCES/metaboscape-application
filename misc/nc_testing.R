@@ -1,18 +1,18 @@
-#  General notes: nwcbox == ID of cell at each layer
+# General notes: nwcbox == ID of cell at each layer
 
 library(tidync)
 library(sf)
 library(dplyr)
 
 coord_key <- read.csv(
-  "R/cell_id_key.csv",
+  "data/cell_id_key.csv",
   colClasses = "character"
 ) |>
   # Change to nuemeric to get the correct order
   mutate(Cell_ID = as.numeric(Cell_ID)) |>
   arrange(Cell_ID)
 
-wp <- tidync("R/big data/whiteperch_95_96.nc")
+wp <- tidync("data/whiteperch_95_96.nc")
 
 coords <- wp |>
   activate(
@@ -30,7 +30,7 @@ model <- wp |>
   filter(nwcbox != -9999) #|>
 # bind_cols(coord_key)
 
-domain <- "R/CBP cell audit/Chesapeake_Bay_Water_Quality_Modeling_cells.geojson" |>
+domain <- "misc/CBP cell audit/Chesapeake_Bay_Water_Quality_Modeling_cells.geojson" |>
   sf::st_read() |>
   left_join(model, by = join_by(CELLID))
 

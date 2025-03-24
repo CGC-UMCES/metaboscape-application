@@ -18,7 +18,7 @@ RUN apt-get update && \
     r-cran-tidync \
     r-cran-dplyr
 
-RUN mkdir /home/R
+RUN mkdir /home/R /home/data
 
 EXPOSE 20688
 

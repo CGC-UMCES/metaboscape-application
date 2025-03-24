@@ -1,12 +1,16 @@
 ## Audit run to compare CBP cells to model points
 ## Completed 2025-03-07
+# This file was used to match the coordinates from the metaboscape model output
+#  to the curvilinear grid found here as of 2025-03-24:
+#  https://data-chesbay.opendata.arcgis.com/maps/9e77263c8c594d88869e46cbe85ca666
+#  REST: https://gis.chesapeakebay.net/ags/rest/services/Modeling/WQ_cells_11064/MapServer
 
 library(tidync)
 library(sf)
 library(dplyr)
 library(mapview)
 
-model_points <- tidync("R/big data/whiteperch_95_96.nc") |>
+model_points <- tidync("data/whiteperch_95_96.nc") |>
   activate(
     "D1,D0"
   ) |>
@@ -14,9 +18,10 @@ model_points <- tidync("R/big data/whiteperch_95_96.nc") |>
   distinct(Cell_ID, .keep_all = TRUE) |>
   sf::st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326)
 
-model_cells <- st_read("R/CBP cell audit/Chesapeake_Bay_Water_Quality_Modeling_cells.geojson")
+model_cells <- st_read("misc/CBP cell audit/Chesapeake_Bay_Water_Quality_Modeling_cells.geojson")
 
 # Shift latitude down by 0.00225 to match model points
+# This was done by hand -- other values will likely work
 st_geometry(model_cells) <- st_geometry(model_cells) - c(0, 0.00225)
 st_crs(model_cells) <- 4326
 
@@ -40,4 +45,4 @@ key <- cells_points_joined |>
   select(CELLID, Cell_ID) |>
   distinct()
 
-write.csv(key, "R/cell_id_key.csv", row.names = FALSE)
+write.csv(key, "data/cell_id_key.csv", row.names = FALSE)

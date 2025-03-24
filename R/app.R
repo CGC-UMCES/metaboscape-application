@@ -10,12 +10,12 @@ options(shiny.port = 20688)
 
 # Metaboscape model output
 wp <- tidync::tidync(
-  "/home/R/big data/whiteperch_95_96.nc"
+  "/home/data/whiteperch_95_96.nc"
 )
 
-# Cell ID key of the CBP model domain. See R/CBP cell audit/cbp_cells.R
+# Cell ID key of the CBP model domain. See misc/CBP cell audit/cbp_cells.R
 domain <- sf::st_read(
-  "/home/R/working data/model_cells.geojson",
+  "/home/data/model_cells.geojson",
   quiet = TRUE
 )
 
