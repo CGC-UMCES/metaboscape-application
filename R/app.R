@@ -1,9 +1,8 @@
 # This library utilizes the shiny, bslib, mapgl, tidync, and dplyr R packages
 # Shiny reference: https://mastering-shiny.org/index.html
 
-# Suppress warnings about unused Rcpp code from terra package dependency and
-#   suggestion to add the codetools package.
-suppressWarnings(
+# Suppress messages from unused terra dependency to install the codetools package.
+suppressMessages(
   library(mapgl)
 )
 
