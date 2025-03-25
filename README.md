@@ -13,8 +13,7 @@ in the meantime:
  - Serve application (see below)
  - Repeat.
 
-Note that the image is currently 1.1GB and takes ~90s to build. Future efforts
-will be focused on reducing this size.
+Note that the image is currently 420MB and takes 6 minutes to build.
 
 If developing on the Chesapeake Biological Laboratory server you will need to
 change the port in the
@@ -43,13 +42,13 @@ docker run -it -v ./R:/home/R app R
 
 ### Serve application
 ```
-docker run --rm --name metabo_app -d -v ./R:/home/R -p 20688:20688 app
-```
-
-or, run:
-
-```
 docker compose up -d
+```
+
+or
+
+```
+docker run --rm --name metabo_app -d -v ./R:/home/R -p 20688:20688 app
 ```
 
 Navigate to: http://localhost:20688/
