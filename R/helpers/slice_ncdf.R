@@ -7,18 +7,23 @@ slice_ncdf <- function(depth_ft, date) {
   layer <- depth_ft / 5
   date <- paste0(date, "-00")
 
-  domain |>
-    # Select only those cells with data in both model domain and model output
-    dplyr::inner_join(
+  # Select cells in the correct layer
+  sf::st_read(
+    "/home/data/model_cells.gpkg",
+    query = sprintf(
+      "SELECT * FROM model_cells WHERE layer_index = %d",
+      (19:1)[layer]
+    ),
+    quiet = TRUE
+  ) |>
+    dplyr::left_join(
       # Slice NCDF file
       wp |>
         tidync::hyper_filter(
           Time = Time == date,
           Layer_N = index == layer
         ) |>
-        tidync::hyper_tibble() |>
-        # Remove cells with no data
-        dplyr::filter(nwcbox != -9999),
+        tidync::hyper_tibble(),
       # Cells are labeled "cell" in model domain and "nwcbox" in model output
       by = dplyr::join_by(cell == nwcbox)
     ) |>

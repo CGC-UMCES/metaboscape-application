@@ -21,12 +21,6 @@ wp <- tidync::tidync(
   "/home/data/whiteperch_95_96.nc"
 )
 
-# Cell ID key of the CBP model domain. See misc/CBP cell audit/cbp_cells.R
-domain <- sf::st_read(
-  "/home/data/model_cells.geojson",
-  quiet = TRUE
-)
-
 # Initial data
 init_data <- slice_ncdf(5, "1995-01-01")
 
@@ -61,7 +55,7 @@ init_map <- mapgl::maplibre(
 
 ### The app ###
 ui <- bslib::page_navbar(
-  title = "The Chesapeake Metaboscape",
+  title = "The Chesapeake Metaboscape v0.1.0",
   sidebar = bslib::sidebar(
     bslib::card(
       shiny::selectInput(
