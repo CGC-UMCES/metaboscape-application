@@ -9,11 +9,6 @@ LABEL \
 
 
 # Install R packages
-## shiny and bslib (dependency of shiny)
-RUN installr -d \
-      -t "zlib-dev" \
-      shiny Rcppcore/Rcpp
-
 ## sf
 RUN installr -d \
       -t "openssl-dev linux-headers gfortran proj-dev gdal-dev sqlite-dev geos-dev udunits-dev" \
@@ -30,12 +25,19 @@ RUN installr -d \
 RUN installr -d \
       mapgl Rcppcore/Rcpp
 
+## shiny and bslib (dependency of shiny)
+RUN installr -d \
+      -t "zlib-dev" \
+      shiny Rcppcore/Rcpp
+
+## shinycssloaders
+RUN installr -d shinycssloaders
+
 ## Cairo and fonts are needed to plot without X11; r-minimal does not have X11
 RUN installr -d -e \
       -t "zlib-dev cairo-dev" \
       -a "cairo font-liberation" \
       Cairo
-
 
 
 # Make application directories

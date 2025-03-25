@@ -94,7 +94,14 @@ ui <- bslib::page_navbar(
     "Map",
     bslib::card(
       full_screen = TRUE,
-      mapgl::maplibreOutput("map")
+      mapgl::maplibreOutput("map") |>
+        shinycssloaders::withSpinner(
+          caption = "Loading...",
+          color = "#8aba5e",
+          color.background = "#00587c",
+          hide.ui = FALSE
+        ) |>
+        bslib::as_fill_carrier()
     )
   ),
   bslib::nav_panel(
