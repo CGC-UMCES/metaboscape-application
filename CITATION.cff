@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+title: "Chesapeake Metaboscape"
+message: "If you use this software, please cite it as below."
+type: software
+# abstract:
+version: 0.1.0
+# date-released:
+authors:
+  - name: "The Metaboscape Team"
+    affiliation: "University of Maryland Center for Environmental Science"
+license: GPL-3.0
+repository-code: "https://github.com/CGC-UMCES/metaboscape-application"
+url: "https://metaboscape.cbl.umces.edu/"
+contact:
+  - family-names: O'Brien
+    given-names: Michael
+    email: obrien@umces.edu
+    affiliation: "University of Maryland Center for Environmental Science"
+    orcid: "https://orcid.org/0000-0003-1420-6395"
+  - family-names: Murphy
+    given-names: Theresa
+    email: tmurphy@umces.edu
+    affiliation: "University of Maryland Center for Environmental Science"
+keywords:
+  - "Chesapeake Bay"
+  - shiny
+  - metabolism
+  - "Chesapeake Global Collaboratory"
