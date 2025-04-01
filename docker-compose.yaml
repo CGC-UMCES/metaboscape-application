@@ -4,7 +4,7 @@ services:
   app:
     image: app
     ports:
-      - "20688:20688"
+      - "20688:20688" # Change left-hand port if using this for development
     volumes:
       - ${PWD}/R:/home/R
       - ${PWD}/data:/home/data
