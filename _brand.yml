@@ -1,0 +1,22 @@
+meta:
+  name: metaboscape app
+  link: https://metaboscape.cbl.umces.edu/ 
+
+logo: 
+  large_transparent: 
+
+color:
+  palette:
+    blue: "#016893"
+    dark blue : "#123A53"
+    light green : "#A7BE77"
+    medium green : "#52A346"
+    light gray : "#E6E6E6"
+  primary: blue
+  
+
+typography:
+  fonts:
+    - family: Canara
+      source: google
+  base: Candara
