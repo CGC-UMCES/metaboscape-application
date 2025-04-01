@@ -8,6 +8,7 @@ services:
     volumes:
       - ${PWD}/R:/home/R
       - ${PWD}/data:/home/data
+      - ${PWD}/brand:/home/brand
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped

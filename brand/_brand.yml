@@ -1,0 +1,22 @@
+meta:
+  name: metaboscape
+  link: https://metaboscape.cbl.umces.edu/ 
+
+# logo: 
+#   large_transparent: 
+
+color:
+  palette:
+    blue: "#016893"
+    dark_blue: "#123A53"
+    light_green: "#A7BE77"
+    medium_green: "#52A346"
+    light_gray: "#E6E6E6"
+  primary: blue
+  
+
+typography:
+  fonts:
+    - family: Open Sans
+      source: google
+  base: Open Sans
