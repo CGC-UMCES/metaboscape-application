@@ -8,6 +8,8 @@ suppressMessages(
 )
 
 options(shiny.host = "0.0.0.0")
+
+# Change this if you are in a development container and 20688 is in use
 options(shiny.port = 20688)
 
 # Load helper functions
@@ -21,88 +23,82 @@ wp <- tidync::tidync(
   "/home/data/whiteperch_95_96.nc"
 )
 
-# Initial data
-init_data <- slice_ncdf(5, "1995-01-01")
-
-init_map <- mapgl::maplibre(
-  style = mapgl::carto_style("positron"),
-  bounds = c(-77.46285, 36.71919, -75.38543, 39.63196)
-) |>
-  mapgl::add_fill_layer(
-    id = "domain",
-    source = init_data,
-    fill_color = mapgl::interpolate(
-      column = "IGR",
-      values = range(
-        init_data$IGR,
-        na.rm = TRUE
-      ),
-      stops = c("blue", "red"),
-      na_color = "lightgrey"
-    ),
-    fill_opacity = 0.8,
-    tooltip = "IGR"
-  ) |>
-  mapgl::add_legend(
-    legend_title = "IGR",
-    type = "continuous",
-    colors = c("blue", "red"),
-    values = range(
-      init_data$IGR,
-      na.rm = TRUE
-    )
-  )
+# Load initial maps
+source("/home/R/maps.R")
 
 ### The app ###
 ui <- bslib::page_navbar(
   title = "The Chesapeake Metaboscape v0.1.0",
-  sidebar = bslib::sidebar(
-    bslib::card(
-      shiny::selectInput(
-        "select",
-        "Select variable",
-        choices = list(
-          "Inst. Growth Rate" = "IGR", "MF" = "MF", "RM" = "RM",
-          "Temperature (C)" = "T", "Salinity (ppt)" = "S",
-          "Dissolved Oxygen (mg/L)" = "DO"
+  theme = bslib::bs_theme(brand = "/home/brand/_brand.yml"),
+  bslib::nav_panel(
+    "Map",
+    bslib::layout_sidebar(
+      bslib::card(
+        full_screen = TRUE,
+        mapgl::maplibreOutput("map") |>
+          shinycssloaders::withSpinner(
+            caption = "Loading...",
+            color = "#8aba5e",
+            color.background = "#00587c",
+            hide.ui = FALSE
+          ) |>
+          bslib::as_fill_carrier()
+      ),
+      sidebar = bslib::sidebar(
+        bslib::card(
+          shiny::selectInput(
+            "select",
+            "Select variable",
+            choices = list(
+              "Inst. Growth Rate" = "IGR", "Feeding Rate" = "MF",
+              "Metabolic Rate" = "RM", "Temperature (C)" = "T",
+              "Salinity (ppt)" = "S", "Dissolved Oxygen (mg/L)" = "DO"
+            )
+          ),
+          shiny::sliderInput(
+            "layer",
+            "Select depth (ft)",
+            min = 5,
+            max = 95,
+            step = 5,
+            value = 5
+          ),
+          shiny::dateInput(
+            "date",
+            "Select date",
+            min = "1995-01-01",
+            max = "1996-12-31",
+            value = "1995-07-01"
+          )
         )
-      ),
-      shiny::sliderInput(
-        "layer",
-        "Select depth (ft)",
-        min = 5,
-        max = 95,
-        step = 5,
-        value = 5
-      ),
-      shiny::dateInput(
-        "date",
-        "Select date",
-        min = "1995-01-01",
-        max = "1996-12-31",
-        value = "1995-01-01"
       )
     )
   ),
   bslib::nav_panel(
-    "Map",
-    bslib::card(
-      full_screen = TRUE,
-      mapgl::maplibreOutput("map") |>
-        shinycssloaders::withSpinner(
-          caption = "Loading...",
-          color = "#8aba5e",
-          color.background = "#00587c",
-          hide.ui = FALSE
-        ) |>
-        bslib::as_fill_carrier()
-    )
-  ),
-  bslib::nav_panel(
-    "Histogram",
-    bslib::card(
-      full_screen = TRUE,
-      shiny::plotOutput("hist")
+    "Compare",
+    bslib::layout_sidebar(
+      bslib::card(
+        full_screen = TRUE,
+        mapgl::maplibreCompareOutput("compare") |>
+          shinycssloaders::withSpinner(
+            caption = "Loading...",
+            color = "#8aba5e",
+            color.background = "#00587c",
+            hide.ui = FALSE
+          ) |>
+          bslib::as_fill_carrier()
+      ),
+      sidebar = bslib::sidebar(
+        shiny::selectInput(
+          "select_compare",
+          "Select variable",
+          choices = list(
+            "Inst. Growth Rate" = "IGR", "Feeding Rate" = "MF",
+            "Metabolic Rate" = "RM", "Temperature (C)" = "T",
+            "Salinity (ppt)" = "S", "Dissolved Oxygen (mg/L)" = "DO"
+          )
+        )
+      )
     )
   )
 )
@@ -114,7 +110,23 @@ server <- function(input, output, session) {
 
 
   output$map <- mapgl::renderMaplibre({
-    init_map
+    init_map |>
+      mapgl::add_legend(
+        legend_title = "IGR",
+        type = "continuous",
+        colors = c("blue", "red"),
+        values = range(
+          init_data$IGR,
+          na.rm = TRUE
+        )
+      )
+  })
+
+  output$compare <- mapgl::renderMaplibreCompare({
+    mapgl::compare(
+      init_map,
+      init_compare_map
+    )
   })
 
   shiny::observeEvent(
@@ -124,7 +136,7 @@ server <- function(input, output, session) {
 
   shiny::observeEvent(
     input$date,
-    update_map_paint(input, selected_data())
+    update_map_paint(input, selected_data(), clear = TRUE)
   )
 
   # Need to clear the map layer if changing model depth as the plotting
@@ -134,12 +146,14 @@ server <- function(input, output, session) {
     update_map_paint(input, selected_data(), clear = TRUE)
   )
 
-  output$hist <- shiny::renderPlot({
-    hist(selected_data()[[input$select]],
-      xlab = input$select,
-      main = NULL
-    )
-  })
+  # Comparison map
+  shiny::observeEvent(
+    input$select_compare,
+    {
+      update_map_paint_compare(input, side = "before")
+      update_map_paint_compare(input, side = "after")
+    }
+  )
 }
 
 shiny::shinyApp(ui, server)
