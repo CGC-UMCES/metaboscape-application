@@ -32,12 +32,16 @@ docker build -t app .
 
 ### Open container
 ```
-docker run -it -v ./R:/home/R app bash
+docker run -it \
+  -v ./R:/home/R -v ./data:/home/data -v ./brand:/home/brand \
+  app bash
 ```
 
 ### Open directly into R
 ```
-docker run -it -v ./R:/home/R app R
+docker run -it \
+  -v ./R:/home/R -v ./data:/home/data -v ./brand:/home/brand \
+  app R
 ```
 
 ### Serve application
@@ -48,7 +52,10 @@ docker compose up -d
 or
 
 ```
-docker run --rm --name metabo_app -d -v ./R:/home/R -p 20688:20688 app
+docker run --rm --name metabo_app -d \
+  -v ./R:/home/R -v ./data:/home/data -v ./brand:/home/brand \
+  -p 20688:20688 \
+  app
 ```
 
 Navigate to: http://localhost:20688/
