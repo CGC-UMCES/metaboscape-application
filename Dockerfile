@@ -7,32 +7,36 @@ LABEL \
     org.opencontainers.image.version="0.0.999"
 
 
+### Install R packages ###
 
-# Install R packages (grouped by needed system dependencies)
-## sf and Rcpp (needed to compile)
+# If adding/removing R packages, run the following to retain the build log:
+#   docker build --progress=plain --no-cache -t temp . 2>&1 | tee build.log
+# Look at the output of pak. It will tell you what system packages are needed.
+# So, below, sf needs gdal-dev, gdal-tools, geos-dev, proj-dev, and sqlite-dev.
+# All are already installed via the arguments below EXCEPT gdal-tools, so add that
+# to `installr -t` or `installr -a`
+#   sf 1.0-20 [bld][cmp][dl] (4.49 MB) + ✔ gdal-dev, ✖ gdal-tools, ✔ geos-dev, ✔ proj-dev, ✔ sqlite-dev
+
+
+# openssl-dev:udunits-dev for sf and dependencies
+# netcdf-dev:icu-dev for tidync and dependencies
+# zlib-dev for shiny
+# cairo-dev for Cairo (needed to plot without X11; r-minimal does not have X11)
+ARG temp_system_packages="openssl-dev linux-headers gfortran proj-dev gdal-dev\
+ gdal-tools sqlite-dev geos-dev udunits-dev netcdf-dev icu-dev zlib-dev cairo-dev"
+
+# libssl3:udunits for sf and dependencies
+# netcdf:icu for tidync and dependencies
+# cairo:font-liberation for shiny and Cairo
+ARG keep_system_packages="libssl3 proj gdal geos expat udunits netcdf icu\
+ cairo font-liberation"
+
 RUN installr -d \
-      -t "openssl-dev linux-headers gfortran proj-dev gdal-dev sqlite-dev geos-dev udunits-dev" \
-      -a "libssl3 proj gdal geos expat udunits" \
-      sf Rcppcore/Rcpp
+      -t "$temp_system_packages" \
+      -a "$keep_system_packages" \
+      sf Rcppcore/Rcpp tidync shiny Cairo shinycssloaders mapgl
 
-## tidync and dplyr (dependency of tidync)
-RUN installr -d \
-      -t "netcdf-dev" \
-      -a "netcdf" \
-      tidync
-
-## mapgl
-RUN installr -d mapgl
-
-## shiny and bslib (dependency of shiny)
-## Cairo and fonts are needed to plot without X11; r-minimal does not have X11
-RUN installr -d \
-      -t "zlib-dev cairo-dev" \
-      -a "cairo font-liberation" \
-      shiny Cairo
-
-## shinycssloaders
-RUN installr -d shinycssloaders
+######
 
 
 # Make application directories
