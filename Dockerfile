@@ -8,8 +8,8 @@ LABEL \
 
 
 
-# Install R packages
-## sf
+# Install R packages (grouped by needed system dependencies)
+## sf and Rcpp (needed to compile)
 RUN installr -d \
       -t "openssl-dev linux-headers gfortran proj-dev gdal-dev sqlite-dev geos-dev udunits-dev" \
       -a "libssl3 proj gdal geos expat udunits" \
@@ -19,29 +19,24 @@ RUN installr -d \
 RUN installr -d \
       -t "netcdf-dev" \
       -a "netcdf" \
-      tidync Rcppcore/Rcpp
+      tidync
 
 ## mapgl
-RUN installr -d \
-      mapgl Rcppcore/Rcpp
+RUN installr -d mapgl
 
 ## shiny and bslib (dependency of shiny)
+## Cairo and fonts are needed to plot without X11; r-minimal does not have X11
 RUN installr -d \
-      -t "zlib-dev" \
-      shiny Rcppcore/Rcpp
+      -t "zlib-dev cairo-dev" \
+      -a "cairo font-liberation" \
+      shiny Cairo
 
 ## shinycssloaders
 RUN installr -d shinycssloaders
 
-## Cairo and fonts are needed to plot without X11; r-minimal does not have X11
-RUN installr -d -e \
-      -t "zlib-dev cairo-dev" \
-      -a "cairo font-liberation" \
-      Cairo
-
 
 # Make application directories
-RUN mkdir /home/R /home/data
+RUN mkdir /home/R /home/data /home/brand
 
 # Expose the port
 EXPOSE 20688
@@ -51,6 +46,7 @@ RUN addgroup -S myuser && adduser -S -G myuser myuser
 
 # Switch to the dummy user
 USER myuser
+WORKDIR /home/R
 
 # Run application
 CMD [ "Rscript", "/home/R/app.R" ]
