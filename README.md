@@ -13,7 +13,7 @@ in the meantime:
  - Serve application (see below)
  - Repeat.
 
-Note that the image is currently 420MB and takes 6 minutes to build.
+Note that the image is currently 346MB and takes 6 minutes to build.
 
 If developing on the Chesapeake Biological Laboratory server you will need to
 change the port in the
