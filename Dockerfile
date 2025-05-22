@@ -4,8 +4,9 @@ FROM rhub/r-minimal
 LABEL \
     org.opencontainers.image.authors="Michael O'Brien <obrien@umces.edu>; Theresa Murphy <tmurphy@umces.edu>" \
     org.opencontainers.image.vendor="University of Maryland Center for Environmental Science" \
-    org.opencontainers.image.version="0.0.999"
-
+    org.opencontainers.image.version="0.1.0.999" \
+    org.opencontainers.image.source="https://github.com/CGC-UMCES/metaboscape-application" \
+    org.opencontainers.image.licenses="GPL-3.0"
 
 ### Install R packages ###
 
@@ -22,7 +23,7 @@ LABEL \
 # netcdf-dev:icu-dev for tidync and dependencies
 # zlib-dev for shiny
 # cairo-dev for Cairo (needed to plot without X11; r-minimal does not have X11)
-ARG temp_system_packages="openssl-dev linux-headers gfortran proj-dev gdal-dev\
+ARG temp_system_packages="openssl-dev linux-headers gfortran proj-dev gdal-dev cmake\
  gdal-tools sqlite-dev geos-dev udunits-dev netcdf-dev icu-dev zlib-dev cairo-dev"
 
 # libssl3:udunits for sf and dependencies
@@ -34,7 +35,7 @@ ARG keep_system_packages="libssl3 proj gdal geos expat udunits netcdf icu\
 RUN installr -d \
       -t "$temp_system_packages" \
       -a "$keep_system_packages" \
-      sf Rcppcore/Rcpp tidync shiny Cairo shinycssloaders mapgl
+      sf Rcppcore/Rcpp rspatial/terra tidync shiny Cairo shinycssloaders mapgl
 
 ######
 
