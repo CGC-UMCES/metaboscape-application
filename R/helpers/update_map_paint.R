@@ -28,7 +28,7 @@ update_map_paint <- function(input, data, clear = FALSE) {
         column = input$select,
         values = variable_range,
         stops = c("blue", "red"),
-        na_color = "lightgrey"
+        na_color = "green"
       )
     ) |>
     mapgl::set_tooltip(

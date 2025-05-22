@@ -23,6 +23,11 @@ wp <- tidync::tidync(
   "/home/data/whiteperch_95_96.nc"
 )
 
+domain <- sf::st_read(
+  "/home/data/model_cells_trim.gpkg",
+  quiet = TRUE
+)
+
 # Load initial maps
 source("/home/R/maps.R")
 
@@ -45,6 +50,15 @@ ui <- bslib::page_navbar(
           bslib::as_fill_carrier()
       ),
       sidebar = bslib::sidebar(
+        bslib::card(
+          shiny::selectInput(
+            "species",
+            "Select species",
+            choices = list(
+              "White Perch" = "wp", "Blue Catfish" = "bc"
+            )
+          )
+        ),
         bslib::card(
           shiny::selectInput(
             "select",
@@ -89,6 +103,15 @@ ui <- bslib::page_navbar(
           bslib::as_fill_carrier()
       ),
       sidebar = bslib::sidebar(
+        bslib::card(
+          shiny::selectInput(
+            "species",
+            "Select species",
+            choices = list(
+              "White Perch" = "wp", "Blue Catfish" = "bc"
+            )
+          )
+        ),
         shiny::selectInput(
           "select_compare",
           "Select variable",
@@ -104,13 +127,33 @@ ui <- bslib::page_navbar(
 )
 
 server <- function(input, output, session) {
+  init_data <- slice_ncdf(5, "1995-07-01")
+
   selected_data <- shiny::reactive({
     slice_ncdf(input$layer, input$date)
   })
 
 
   output$map <- mapgl::renderMaplibre({
-    init_map |>
+    mapgl::maplibre(
+      style = mapgl::carto_style("positron"),
+      bounds = c(-77.46285, 36.71919, -75.38543, 39.63196)
+    ) |>
+      mapgl::add_fill_layer(
+        id = "domain",
+        source = init_data,
+        fill_color = mapgl::interpolate(
+          column = "IGR",
+          values = range(
+            init_data$IGR,
+            na.rm = TRUE
+          ),
+          stops = c("blue", "red"),
+          na_color = "lightgrey"
+        ),
+        fill_opacity = 0.8,
+        tooltip = "IGR"
+      ) |>
       mapgl::add_legend(
         legend_title = "IGR",
         type = "continuous",
@@ -131,19 +174,102 @@ server <- function(input, output, session) {
 
   shiny::observeEvent(
     input$select,
-    update_map_paint(input, selected_data())
+    # update_map_paint(input, selected_data())
+    {
+      variable_range <- range(selected_data()[[input$select]], na.rm = TRUE)
+
+      mapgl::maplibre_proxy("map") |>
+        mapgl::set_view(
+          center = input$map_center,
+          zoom = input$map_zoom
+        ) |>
+        mapgl::set_paint_property(
+          layer = "domain",
+          name = "fill-color",
+          value = mapgl::interpolate(
+            column = input$select,
+            values = variable_range,
+            stops = c("blue", "red"),
+            na_color = "lightgrey"
+          )
+        ) |>
+        mapgl::set_tooltip(
+          layer = "domain",
+          tooltip = input$select
+        ) |>
+        mapgl::add_legend(
+          legend_title = input$select,
+          type = "continuous",
+          colors = c("blue", "red"),
+          values = variable_range
+        )
+    }
   )
 
   shiny::observeEvent(
     input$date,
-    update_map_paint(input, selected_data(), clear = TRUE)
+    {
+      variable_range <- range(selected_data()[[input$select]], na.rm = TRUE)
+
+      mapgl::maplibre_proxy("map") |>
+        mapgl::set_view(
+          center = input$map_center,
+          zoom = input$map_zoom
+        ) |>
+        mapgl::set_paint_property(
+          layer = "domain",
+          name = "fill-color",
+          value = mapgl::interpolate(
+            column = input$select,
+            values = variable_range,
+            stops = c("blue", "red"),
+            na_color = "lightgrey"
+          )
+        ) |>
+        mapgl::set_tooltip(
+          layer = "domain",
+          tooltip = input$select
+        ) |>
+        mapgl::add_legend(
+          legend_title = input$select,
+          type = "continuous",
+          colors = c("blue", "red"),
+          values = variable_range
+        )
+    }
   )
 
-  # Need to clear the map layer if changing model depth as the plotting
-  # domain is now different.
   shiny::observeEvent(
     input$layer,
-    update_map_paint(input, selected_data(), clear = TRUE)
+    {
+      variable_range <- range(selected_data()[[input$select]], na.rm = TRUE)
+
+      mapgl::maplibre_proxy("map") |>
+        mapgl::set_view(
+          center = input$map_center,
+          zoom = input$map_zoom
+        ) |>
+        mapgl::set_paint_property(
+          layer = "domain",
+          name = "fill-color",
+          value = mapgl::interpolate(
+            column = input$select,
+            values = variable_range,
+            stops = c("blue", "red"),
+            na_color = "lightgrey"
+          )
+        ) |>
+        mapgl::set_tooltip(
+          layer = "domain",
+          tooltip = input$select
+        ) |>
+        mapgl::add_legend(
+          legend_title = input$select,
+          type = "continuous",
+          colors = c("blue", "red"),
+          values = variable_range
+        )
+    }
   )
 
   # Comparison map

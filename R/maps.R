@@ -1,5 +1,5 @@
 ## Import data
-init_data <- slice_ncdf(5, "1995-04-01")
+init_data <- slice_ncdf(5, "1995-07-01")
 init_compare_data <- slice_ncdf(5, "1996-04-01")
 
 ## Overall range for comparison

@@ -7,25 +7,26 @@ slice_ncdf <- function(depth_ft, date) {
   layer <- depth_ft / 5
   date <- paste0(date, "-00")
 
-  # Select cells in the correct layer
-  sf::st_read(
-    "/home/data/model_cells.gpkg",
-    query = sprintf(
-      "SELECT * FROM model_cells WHERE layer_index = %d",
-      (19:1)[layer]
-    ),
-    quiet = TRUE
-  ) |>
-    dplyr::left_join(
+  # sf::st_read(
+  #   "/home/data/model_cells.gpkg",
+  #   query = sprintf(
+  #     "SELECT * FROM model_cells WHERE layer_index = %d",
+  #     (19:1)[layer]
+  #   ),
+  #   quiet = TRUE
+  # ) |>
+  domain |>
+    dplyr::bind_cols(
+      # dplyr::left_join(
       # Slice NCDF file
       wp |>
         tidync::hyper_filter(
           Time = Time == date,
           Layer_N = index == layer
         ) |>
-        tidync::hyper_tibble(),
+        tidync::hyper_tibble() # ,
       # Cells are labeled "cell" in model domain and "nwcbox" in model output
-      by = dplyr::join_by(cell == nwcbox)
+      # by = dplyr::join_by(cell == nwcbox)
     ) |>
     dplyr::mutate(
       dplyr::across(IGR:S, ~ signif(.x, 3))
