@@ -25,7 +25,12 @@ environment, you might need to change the port in
 instead. Don't hesitate to reach out with questions regarding this!
 
 ## Misc. container navigation
-### Build image
+### Pull image from GitHub Container Registry
+```
+docker pull ghcr.io/cgc-umces/metaboscape_app:latest
+```
+
+### Build image locally
 ```
 docker build -t app .
 ```
