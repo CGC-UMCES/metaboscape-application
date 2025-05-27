@@ -31,4 +31,4 @@ jobs:
       uses: docker/build-push-action@v6
       with:
         push: true
-        tags: cgc-umces/metaboscape_app:latest
+        tags: ghcr.io/cgc-umces/metaboscape_app:latest
