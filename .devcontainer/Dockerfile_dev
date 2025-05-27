@@ -1,0 +1,7 @@
+FROM ghcr.io/cgc-umces/metaboscape_app
+
+USER root
+
+RUN installr -d -t "linux-headers" languageserver nx10/httpgd 
+
+RUN apk add pipx && pipx install radian
