@@ -31,17 +31,27 @@
 	// "shutdownAction": "none",
 
 	// Uncomment the next line to run commands after the container is created.
-	// "postCreateCommand": "cat /etc/os-release",
+	"postCreateCommand": "apk add pipx \
+      && pipx install radian \
+      && alias r='/root/.local/bin/radian' \
+      && installr -d -t 'linux-headers' languageserver nx10/httpgd",
 
 	// Configure tool-specific properties.
   "customizations": {
       "vscode": {
+        "settings": {
+          "r.rterm.linux": "/root/.local/bin/radian",
+          "r.rpath.linux": "/usr/local/bin/R",
+          "r.plot.useHttpgd": true
+        }, 
         "extensions": [
           "REditorSupport.r"
         ]
       }
-    }
+    },
 
 	// Uncomment to connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "devcontainer"
+	"remoteUser": "root"
+
+  "runArgs": ["--name", "app_devcontainer"]
 }
