@@ -4,6 +4,7 @@
 	"name": "Metaboscape development",
 
   "build": {
+    "context": "..",
     "dockerfile": "Dockerfile_dev"
   },
 
@@ -11,18 +12,15 @@
 
 	// Configure tool-specific properties.
   "customizations": {
-      "vscode": {
-        "settings": {
-          "r.rterm.linux": "/root/.local/bin/radian",
-          "r.rpath.linux": "/usr/local/bin/R",
-          "r.plot.useHttpgd": true
-        }, 
-        "extensions": [
-          "REditorSupport.r"
-        ]
-      }
+    "vscode": {
+      "settings": {
+        "r.rterm.linux": "/root/.local/bin/radian",
+        "r.rpath.linux": "/usr/local/bin/R",
+        "r.plot.useHttpgd": true
+      }, 
+      "extensions": [
+        "REditorSupport.r"
+      ]
     }
-
-	// Uncomment to connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.
-
+  }
 }
