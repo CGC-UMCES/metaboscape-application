@@ -8,8 +8,6 @@
     "dockerfile": "Dockerfile_dev"
   },
 
-  // "appPort": "20619:20688",
-
 	// Configure tool-specific properties.
   "customizations": {
     "vscode": {
