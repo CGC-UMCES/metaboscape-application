@@ -1,0 +1,13 @@
+FROM ghcr.io/cgc-umces/metaboscape_app
+
+# Switch to root user in order to install things
+USER root
+
+# Install R packages to make working in VS Code easier
+RUN installr -d -t "linux-headers" languageserver nx10/httpgd 
+
+# Install radian to make working with R prettier
+RUN apk add pipx && pipx install radian
+
+# Install git
+RUN apk add git

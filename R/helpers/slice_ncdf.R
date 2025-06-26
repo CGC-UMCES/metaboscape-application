@@ -9,7 +9,7 @@ slice_ncdf <- function(depth_ft, date) {
 
   # Select cells in the correct layer
   sf::st_read(
-    "/home/data/model_cells.gpkg",
+    "data/model_cells.gpkg",
     query = sprintf(
       "SELECT * FROM model_cells WHERE layer_index = %d",
       (19:1)[layer]
