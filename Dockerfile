@@ -51,7 +51,7 @@ RUN addgroup -S myuser && adduser -S -G myuser myuser
 
 # Switch to the dummy user
 USER myuser
-WORKDIR /home/R
+WORKDIR /home
 
 # Run application
 CMD [ "Rscript", "/home/R/app.R" ]

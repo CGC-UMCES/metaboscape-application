@@ -5,6 +5,7 @@ services:
     image: ghcr.io/cgc-umces/metaboscape_app
     ports:
       - "20688:20688" # Change left-hand port if using this for development
+    working_dir: /home
     volumes:
       - ${PWD}/R:/home/R
       - ${PWD}/data:/home/data
